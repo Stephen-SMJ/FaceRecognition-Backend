@@ -39,7 +39,7 @@ public class FaceServiceImpl extends ServiceImpl<FaceMapper, Face> implements Fa
                     if (faceResult.getScore() >= FaceResult.SATISFY_SCORE ){ //update face set vefnum = vefnum+1 where fid = fid.
                         if (face.getFaceStatus() == 0){ //0 is ok, 1 is forbidden.
                             lambdaUpdate().set(Face::getVefNum,face.getVefNum()+1).eq(Face::getFid,face.getFid()).update(); // update return ture or false
-                            faceResult.setMsg(TimeUtils.timeQuantum()+"好，"+face.getFaceName());
+                            faceResult.setMsg(face.getFaceName()+", Good " + TimeUtils.timeQuantum()+'!');
                             faceResult.setName(face.getFaceName());
                             Map<String, String> map = new HashMap<>();
                             map.put("score",String.valueOf(faceResult.getScore()));
@@ -63,12 +63,14 @@ public class FaceServiceImpl extends ServiceImpl<FaceMapper, Face> implements Fa
                             // priority is forbidden > not detect face.
                             return faceState != null ? faceState : FaceResult.error(FaceResult.NOT_FOUND_FACE,"There is no face in the DataBase", faceResult.getScore());
                         }
+                        faceLength --;
                     }
                 }else {
-                    return faceResult;
+                    return faceResult; //api error
                 }
             }
         }
+        //null error
         return FaceResult.error(FaceResult.NULL_ERROR,"NullPointerError");
     }
 
@@ -77,7 +79,7 @@ public class FaceServiceImpl extends ServiceImpl<FaceMapper, Face> implements Fa
         Face face = new Face();
         face.setFaceBase(imageBase);
         face.setCreateTime(new Date());
-        face.setFaceName("admin");
+        face.setFaceName("Admin");
         face.setVefNum(0);
         face.setFaceStatus(0);
         boolean save = save(face); // save in mybatisplus is inster.
